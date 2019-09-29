@@ -61,18 +61,13 @@ while (1):
     STREET = re.compile(r'(.*?)街道')
     street = STREET.findall(ADDRESS)
     XIANG = re.compile(r'(.*?)乡')
-    xiang = XIANG.findall(ADDRESS)
-    QU = re.compile(r'(.*?)开发区')
-    qu = QU.findall(ADDRESS)
-    coopzone = re.compile(r'(.*?)合作区')
-    coop_zone = coopzone.findall(ADDRESS)
-
-    if (len(TOWN) != 0):
+   
+    if (len(town) != 0):
         ADDRESS = ADDRESS.split('镇')
         ADDRESS[0] += '镇'
         list_address += ADDRESS
         ADDRESS = ADDRESS[1]
-    elif (len(STREET) != 0):
+    elif (len(street) != 0):
         ADDRESS = ADDRESS.split('街道')
         ADDRESS[0] += '街道'
         list_address += ADDRESS
@@ -80,16 +75,6 @@ while (1):
     elif (len(xiang) != 0):
         ADDRESS = ADDRESS.split('乡')
         ADDRESS[0] += '乡'
-        list_address += ADDRESS
-        ADDRESS = ADDRESS[1]
-    elif (len(qu) != 0):
-        ADDRESS = ADDRESS.split('开发区')
-        ADDRESS[0] += '开发区'
-        list_address += ADDRESS
-        address = address[1]
-    elif (len(coop_zone) != 0):
-        ADDRESS = ADDRESS.split('合作区')
-        ADDRESS[0] += '合作区'
         list_address += ADDRESS
         ADDRESS = ADDRESS[1]
     else:
