@@ -36,45 +36,45 @@ while (1):
     if(len(list_address) == 2):
         address = list_address[1]
     list_address = address.split(str(telephone_num[0]))      #以电话号码为分隔符，分割该字符串中的地址信息
-    address = list_address[0]+list_address[1]
+    address = list_address[0] + list_address[1]
 
-#用cpca模块提取省、市、区
-    address1 = address.split()
-    DataFrame = cpca.transform(address1,cut = False,lookahead = 12)
-    listaddress = DataFrame.values[0]
-    if(listaddress[0][0:2] != address1[0][0:2]):
-         DataFrame = cpca.transform(address1,cut=False,lookahead = 12)
-         listaddress = DataFrame.values[0]
-    ADDRESS = listaddress[-1]
+#用cpca模块提取省市区信息（前三级）
+
+    df = cpca.transform(address, cut = False, lookahead = 13)        #DataFrame
+    listaddress = df.values[0]
+    if(listaddress[0][0:2] != address[0][0:2]):
+         df = cpca.transform(address, cut=False, lookahead = 13)
+         listaddress = df.values[0]
+    ADDRESS = listaddress[-1]                                        #取列表最后一个元素
     listaddress = list(listaddress)
     listaddress.pop()
     if(listaddress[0] == '北京市'or'上海市'or'天津市'or'重庆市'):
-        listladdress[0] = str(listaddress[0]).strip('市')         #直辖市第一级时要去掉'市'
+        listaddress[0] = str(listaddress[0]).strip('市')         #直辖市在第一级时要去掉'市'
 
 
 #提取详细地址
 
-    ADDRESS = ADDRESS.strip('.')
+    ADDRESS = ADDRESS.strip('.')           #去掉句号
+#提取第四级
     TOWN = re.compile(r'(.*?)镇')
     town = TOWN.findall(ADDRESS)
-    STEEET= re.compile(r'(.*?)街道')
+    STREET = re.compile(r'(.*?)街道')
     street = STREET.findall(ADDRESS)
     XIANG = re.compile(r'(.*?)乡')
-    village = XIANG.findall(ADDRESS)
-    zonepattern = re.compile(r'(.*?)开发区')
-    zone = zonepattern.findall(ADDRESS)
-    coozonepattern = re.compile(r'(.*?)合作区')
-    coozone = coozonepattern.findall(ADDRESS)
+    xiang = XIANG.findall(ADDRESS)
+    QU = re.compile(r'(.*?)开发区')
+    qu = QU.findall(ADDRESS)
+    coopzone = re.compile(r'(.*?)合作区')
+    coop_zone = coopzone.findall(ADDRESS)
 
-
-    if (len(STREET) != 0):
-        ADDRESS = ADDRESS.split('街道')
-        ADDRESS[0] += '街道'
-        list_address += ADDRESS
-        ADDRESS = ADDRESS[1]
-    elif (len(TOWN) != 0):
+    if (len(TOWN) != 0):
         ADDRESS = ADDRESS.split('镇')
         ADDRESS[0] += '镇'
+        list_address += ADDRESS
+        ADDRESS = ADDRESS[1]
+    elif (len(STREET) != 0):
+        ADDRESS = ADDRESS.split('街道')
+        ADDRESS[0] += '街道'
         list_address += ADDRESS
         ADDRESS = ADDRESS[1]
     elif (len(xiang) != 0):
@@ -82,12 +82,12 @@ while (1):
         ADDRESS[0] += '乡'
         list_address += ADDRESS
         ADDRESS = ADDRESS[1]
-    elif (len(zone) != 0):
+    elif (len(qu) != 0):
         ADDRESS = ADDRESS.split('开发区')
         ADDRESS[0] += '开发区'
         list_address += ADDRESS
         address = address[1]
-    elif (len(coozone) != 0):
+    elif (len(coop_zone) != 0):
         ADDRESS = ADDRESS.split('合作区')
         ADDRESS[0] += '合作区'
         list_address += ADDRESS
@@ -97,14 +97,13 @@ while (1):
         list_address += ADDRESS
         list_address.insert(3, '')
         ADDRESS = ADDRESS[0]
-    # 提取完第四级地址
 
-
+#提取第六级
     if (flag == 2):
-        list_address.pop()
-        road = re.search(r'(.*?港路)|(.*?[路街港道])|(.*胡同)|(.*?庭)|(.*?区)|(.*?里)', ADDRESS)
+        list_address.pop()                      #删掉最后一个元素
+        road = re.search(r'(.*?路)|(.*?街)|(.*胡同)|(.*?弄)|(.*?大道)|(.*?巷)|(.*？坊)', ADDRESS)
         if (road == None):
-            list_address.insert(4, '')
+            list_address.insert(4, '')             #缺失的道路位置保留空字符串
         else:
             road = road.group(0)
             road = road.split()
@@ -112,10 +111,10 @@ while (1):
             road = road[0]
             ADDRESS = ADDRESS.replace(road, '', 1)
 
-     #门牌号
-        door_number = re.search(r'(.*?[号弄])|(.*?[乡道])', ADDRESS)
+#门牌号
+        door_number = re.search(r'(.*?[号])', ADDRESS)
         if (door_number == None):
-            list_address.insert(5, '')
+            list_address.insert(5, '')              #缺失的门牌号位置保留空字符串
         else:
             door_number = door_number.group(0)
             door_number = door_number.split()
@@ -126,12 +125,19 @@ while (1):
             ADDRESS = ADDRESS.split()
             list_address += ADDRESS
         else:
-            list_address .insert(6, '')
+            list_address .insert(6, '')            #第七级详细信息缺失置空字符串
 
 
 
-    ANS={'姓名':name[0],'手机':telephone_num [0],'地址':list_address }
-    print(json.dumps(ANS,ensure_ascii=False))
+    result = {'姓名':name[0],'手机':telephone_num [0],'地址':list_address}
+    dict = json.dumps(result)        #将dict转换为json
+    print(dict)
+
+
+
+
+
+
 
 
 
