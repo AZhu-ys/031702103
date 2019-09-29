@@ -61,9 +61,7 @@ while (1):
     street = STREET.findall(ADDRESS)
     XIANG = re.compile(r'(.*?)乡')
     xiang = XIANG.findall(ADDRESS)
-    QU = re.compile(r'(.*?)开发区')
-    qu = QU.findall(ADDRESS)
-
+    
     if (len(town) != 0):
         ADDRESS = ADDRESS.split('镇')
         ADDRESS[0] += '镇'
