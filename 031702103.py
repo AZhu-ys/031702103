@@ -1,161 +1,140 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import re
 import json
+import cpca
 
-CITIES=['乌鲁木齐', '克拉玛依', '拉萨 ', '银川', '石嘴山', '吴忠', '固原', '中卫', '呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', '呼伦贝尔', '巴彦淖尔', '乌兰察布', '南宁', '柳州', '桂林', '梧州', '北海', '崇左', '来宾', '贺州', '玉林', '百色', '河池', '钦州', '防城港', '贵港', '哈尔滨', '大庆', '齐齐哈尔', '佳木斯', '鸡西', '鹤岗', '双鸭山', '牡丹江', '伊春', '七台河', '黑河', '绥化', '长春', '吉林', '四平', '辽源', '通化', '白山', '松原', '白城', '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', '阜新', '辽阳', '盘锦', '铁岭', '朝阳', '葫芦岛', '石家庄', '唐山', '邯郸', '秦皇岛', '保定', '张家口', '承德', '廊坊', '沧州', '衡水', '邢台', '济南', '青岛', '淄博', '枣庄', '东营', '烟台', '潍坊', '济宁', '泰安', '威海', '日照', '莱芜', '临沂', '德州', '聊城', '菏泽', '滨州', '南京', '镇江', '常州', '无锡', '苏州', '徐州', '连云港', '淮安', '盐城', '扬州', '泰州', '南通', '宿迁', '合肥', '蚌埠', '芜湖', '淮南', '亳州', '阜阳', '淮北', '宿州', '滁州', '安庆', '巢湖', '马鞍山', '宣城', '黄山', '池州', '铜陵', '杭州', '嘉兴', '湖州', '宁波', '金华', '温州', '丽水', '绍兴', '衢州', '舟山', '台州', '福州', '厦门', '泉州', '三明', '南平', '漳州', '莆田', '宁德', '龙岩', '广州', '深圳', '汕头', '惠州', '珠海', '揭阳', '佛山', '河源', '阳江', '茂名', '湛江', '梅州', '肇庆', '韶关', '潮州', '东莞', '中山', '清远', '江门', '汕尾', '云浮', '海口', '三亚', '昆明', '曲靖', '玉溪', '保山', '昭通', '丽江', '普洱', '临沧', '贵阳', '六盘水', '遵义', '安顺', '成都', '绵阳', '德阳', '广元', '自贡', '攀枝花', '乐山', '南充', '内江', '遂宁', '广安', '泸州', '达州', '眉山', '宜宾', '雅安', '资阳', '长沙', '株洲', '湘潭', '衡阳', '岳阳', '郴州', '永州', '邵阳', '怀化', '常德', '益阳', '张家界', '娄底 ', '武汉', '襄樊', '宜昌', '黄石', '鄂州', '随州', '荆州', '荆门', '十堰', '孝感', '黄冈', '咸宁', '郑州', '洛阳', '开封', '漯河', '安阳', '新乡', '周口', '三门峡', '焦作', '平顶山', '信阳', '南阳', '鹤壁', '濮阳', '许昌', '商丘', '驻马店', '太原', '大同', '忻州', '阳泉', '长治', '晋城', '朔州', '晋中', '运城', '临汾', '吕梁', '西安', '咸阳', '铜川', '延安', '宝鸡', '渭南', '汉中', '安康', '商洛', '榆林', '兰州', '天水', '平凉', '酒泉', '嘉峪关', '金昌', '白银', '武威', '张掖', '庆阳', '定西', '陇南', '西宁', '南昌', '九江', '赣州', '吉安', '鹰潭', '上饶', '萍乡', '景德镇', '新余', '宜春', '抚州','延边朝鲜族自治州', '恩施土家族苗族自治州', '湘西土家族苗族自治州', '临夏回族自治州', '甘南藏族自治州', '甘孜藏族自治州', '凉山彝族自治州', '阿坝藏族羌族自治州', '黔东南苗族侗族自治州', '黔南布依族苗族自治州', '黔西南布依族苗族自治州', '昌吉回族自治州', '伊犁哈萨克自治州', '博尔塔拉蒙古自治州', '巴音郭楞蒙古自治州', '黄南藏族自治州', '海北藏族自治州', '海南藏族自治州', '果洛藏族自治州', '玉树藏族自治州', '海西蒙古族藏族自治州', '迪庆藏族自治州', '楚雄彝族自治州', '大理白族自治州', '怒江傈僳族自治州', ' 西双版纳傣族自治州', '文山壮族苗族自治州', '德宏傣族景颇族自治州', '红河哈尼族彝族自治州', '克孜勒苏柯尔克孜自治州']
-AREAS = ['东城区', '西城区', '朝阳区', '丰台区', '石景山区', '海淀区', '门头沟区', '房山区', '通州区', '顺义区', '昌平区', '大兴区', '怀柔区', '平谷区', '密云区', '延庆区', '和平区', '河东区', '河西区', '南开区', '河北区', '红桥区', '东丽区', '西青区', '津南区', '北辰区', '武清区', '宝坻区', '滨海新区', '宁河区', '静海区', '蓟州区', '长安区', '桥西区', '新华区', '井陉矿区', '裕华区', '藁城区', '鹿泉区', '栾城区', '井陉县', '正定县', '行唐县', '灵寿县', '高邑县', '深泽县', '赞皇县', '无极县', '平山县', '元氏县', '赵县', '石家庄高新技术产业开发区', '石家庄循环化工园区', '辛集市', '晋州市', '新乐市', '路南区', '路北区', '古冶区', '开平区', '丰南区', '丰润区', '曹妃甸区', '滦南县', '乐亭县', '迁西县', '玉田县', '唐山市芦台经济技术开发区', '唐山市汉沽管理区', '唐山高新技术产业开发区', '河北唐山海港经济开发区', '遵化市', '迁安市', '滦州市', '海港区', '山海关区', '北戴河区', '抚宁区', '青龙满族自治县', '昌黎县', '卢龙县', '秦皇岛市经济技术开发区', '北戴河新区', '邯山区', '丛台区', '复兴区', '峰峰矿区', '肥乡区', '永年区', '临漳县', '成安县', '大名县', '涉县', '磁县', '邱县', '鸡泽县', '广平县', '馆陶县', '魏县', '曲周县', '邯郸经济技术开发区', '邯郸冀南新区', '武安市', '桥东区', '桥西区', '邢台县', '临城县', '内丘县', '柏乡县', '隆尧县', '任县', '南和县', '宁晋县', '巨鹿县', '新河县', '广宗县', '平乡县', '威县', '清河县', '临西县', '河北邢台经济开发区', '南宫市', '沙河市', '竞秀区', '莲池区', '满城区', '清苑区', '徐水区', '涞水县', '阜平县', '定兴县', '唐县', '高阳县', '容城县', '涞源县', '望都县', '安新县', '易县', '曲阳县', '蠡县', '顺平县', '博野县', '雄县', '保定高新技术产业开发区', '保定白沟新城', '涿州市', '定州市', '安国市', '高碑店市', '桥东区', '桥西区', '宣化区', '下花园区', '万全区', '崇礼区', '张北县', '康保县', '沽源县', '尚义县', '蔚县', '阳原县', '怀安县', '怀来县', '涿鹿县', '赤城县', '张家口市高新技术产业开发区', '张家口市察北管理区', '张家口市塞北管理区', '双桥区', '双滦区', '鹰手营子矿区', '承德县', '兴隆县', '滦平县', '隆化县', '丰宁满族自治县', '宽城满族自治县', '围场满族蒙古族自治县', '承德高新技术产业开发区', '平泉市', '新华区', '运河区', '沧县', '青县', '东光县', '海兴县', '盐山县', '肃宁县', '南皮县', '吴桥县', '献县', '孟村回族自治县', '河北沧州经济开发区', '沧州高新技术产业开发区', '沧州渤海新区', '泊头市', '任丘市', '黄骅市', '河间市', '安次区', '广阳区', '固安县', '永清县', '香河县', '大城县', '文安县', '大厂回族自治县', '廊坊经济技术开发区', '霸州市', '三河市', '桃城区', '冀州区', '枣强县', '武邑县', '武强县', '饶阳县', '安平县', '故城县', '景县', '阜城县', '河北衡水高新技术产业开发区', '衡水滨湖新区', '深州市', '小店区', '迎泽区', '杏花岭区', '尖草坪区', '万柏林区', '晋源区', '清徐县', '阳曲县', '娄烦县', '山西转型综合改革示范区', '古交市', '新荣区', '平城区', '云冈区', '云州区', '阳高县', '天镇县', '广灵县', '灵丘县', '浑源县', '左云县', '山西大同经济开发区', '城区', '矿区', '郊区', '平定县', '盂县', '潞州区', '上党区', '屯留区', '潞城区', '襄垣县', '平顺']
-zhixiashi = ['北京', '天津', '上海', '重庆']
 
-def get_phonenum(str):       #获取电话号码
-    res = re.search(r'\d{11}', str)
-    if res == None:
-        return ""
-    return res.group(0)
 
-def get_province(str):   #获取省/直辖市
-    if(str[0:2] in zhixiashi):
-        res = str[0:2]
-        return res
+while (1):
+    try:
+        address = input()
+        if(address == "END"):
+            break
+    except EOFError:
+        break
+    if(address[0:2] == '1!'):             #划分等级后删除标识符
+          flag = 1
+          address = address.strip('1!')
+    elif(address[0:2] == '2!'):
+        flag = 2
+        address = address.strip('2!')
     else:
-        res = re.search(("(.*?省)|(.*?自治区)"), str)
-        if res != None:
-            lenth = len(res.group(0))
-        if res == None or lenth > 5:
-            if str[0:3] == "黑龙江":
-                return "黑龙江"
-            else:
-                return str[0:2]
-        return res.group(0)
+        flag = 3
+        address = address.strip('3!')
 
-def get_city(str):            #获取直辖市/市
-    res = re.search("(.*?自治州)|(.*?[市])", str)
-    if res != None:
-        lenth = len(res.group(0))
-    if res == None or lenth > 7:
-        for i in CITIES:
-            if str[0:2] in i:
-                return i
-        return ""
+
+#获取姓名
+    NAME = re.compile(r'(.*),')
+    name= NAME.findall(address)
+
+#获取手机号码
+    telephone = re.compile(r'\d{11}')      #连续11位数字即是手机号码
+    telephone_num = telephone.findall(address)
+
+#获取地址
+    list_address = address.split(',')      #以逗号为分隔符分开名字和后面信息，并返回分割后列表
+    if(len(list_address) == 2):
+        address=list_address[1]
+    list_address = list_address.split(str(telephone_num[0]))      #以电话号码为分隔符
+    address = list_address[0]+list_address[1]
+
+#用cpca模块提取省、市、区
+    address1 = address.split()
+    DataFrame = cpca.transform(address1,cut = False,lookahead = 12)
+    listaddress = DataFrame.values[0]
+    if(listaddress[0][0:2] != address1[0][0:2]):
+         DataFrame = cpca.transform(address1,cut=False,lookahead = 12)
+         listaddress = DataFrame.values[0]
+    ADDRESS = listaddress[-1]
+    listaddress = list(listaddress)
+    listaddress.pop()
+    if(listaddress[0] == '北京市'or'上海市'or'天津市'or'重庆市'):
+        listladdress[0] = str(listaddress[0]).strip('市')         #直辖市第一级时要去掉'市'
+
+
+#提取详细地址
+
+    ADDRESS = ADDRESS.strip('.')
+    TOWN = re.compile(r'(.*?)镇')
+    town = TOWN.findall(ADDRESS)
+    STEEET= re.compile(r'(.*?)街道')
+    street = STREET.findall(ADDRESS)
+    XIANG = re.compile(r'(.*?)乡')
+    village = XIANG.findall(ADDRESS)
+    zonepattern = re.compile(r'(.*?)开发区')
+    zone = zonepattern.findall(ADDRESS)
+    coozonepattern = re.compile(r'(.*?)合作区')
+    coozone = coozonepattern.findall(ADDRESS)
+
+
+    if (len(STREET) != 0):
+        ADDRESS = ADDRESS.split('街道')
+        ADDRESS[0] += '街道'
+        list_address += ADDRESS
+        ADDRESS = ADDRESS[1]
+    elif (len(TOWN) != 0):
+        ADDRESS = ADDRESS.split('镇')
+        ADDRESS[0] += '镇'
+        list_address += ADDRESS
+        ADDRESS = ADDRESS[1]
+    elif (len(xiang) != 0):
+        ADDRESS = ADDRESS.split('乡')
+        ADDRESS[0] += '乡'
+        list_address += ADDRESS
+        ADDRESS = ADDRESS[1]
+    elif (len(zone) != 0):
+        ADDRESS = ADDRESS.split('开发区')
+        ADDRESS[0] += '开发区'
+        list_address += ADDRESS
+        address = address[1]
+    elif (len(coozone) != 0):
+        ADDRESS = ADDRESS.split('合作区')
+        ADDRESS[0] += '合作区'
+        list_address += ADDRESS
+        ADDRESS = ADDRESS[1]
     else:
-        return res.group(0)
+        ADDRESS = ADDRESS.split()
+        list_address += ADDRESS
+        list_address.insert(3, '')
+        ADDRESS = ADDRESS[0]
+    # 提取完第四级地址
 
 
-def get_country(str):            #获取区/县/县级市
-    res = re.search("(.*?自治旗)|(.*?市)|(.*?区)|(.*?县)", str)
-    if res == None:
-        for i in AREAS:
-            if str[0:2] in i:
-                return i
-        return ""
-    return res.group(0)
+    if (flag == 2):
+        list_address.pop()
+        road = re.search(r'(.*?港路)|(.*?[路街港道])|(.*胡同)|(.*?庭)|(.*?区)|(.*?里)', ADDRESS)
+        if (road == None):
+            list_address.insert(4, '')
+        else:
+            road = road.group(0)
+            road = road.split()
+            list_address += road
+            road = road[0]
+            ADDRESS = ADDRESS.replace(road, '', 1)
 
-def get_town(str):         #获得街道/镇/乡
-    res = re.search("(.*?街道)|(.*?镇)|(.*?乡)", str)
-    if res != None:
-        return res.group(0)
-    else:
-        return ""
-
-
-def get_road(str):        #获取街道/道路名/巷子
-    res = re.search("(.*?街)|(.*?巷)|(.*?路)|(.*?道)", str)
-    if res != None:
-        return res.group(0)
-    else:
-        return ""
-
-def get_doornum(str):                   #获取门牌号
-    res = re.search("(.*?[号])", str)
-    if res != None:
-        return res.group(0)
-    return ""
+     #门牌号
+        door_number = re.search(r'(.*?[号弄])|(.*?[乡道])', ADDRESS)
+        if (door_number == None):
+            list_address.insert(5, '')
+        else:
+            door_number = door_number.group(0)
+            door_number = door_number.split()
+            list_address += door_number
+            door_number = door_number[0]
+            ADDRESS = ADDRESS.replace(door_number, '', 1)
+        if (len(address) != 0):
+            ADDRESS = ADDRESS.split()
+            list_address += ADDRESS
+        else:
+            list_address .insert(6, '')
 
 
-S= input()
-flag= S[0]
-dict = {}
-addrlist = []
-s = S.split(',')
-dict["姓名"] = s[0]            #导出姓名
-ret = s[1]
-telnum = get_phonenum(ret)
-ret = ret.replace(telnum, '',1)    #将手机号从字符串中删除
-dict["手机"] = telnum              #导出手机号码
-ret = ret.replace('.','',1)        #剔除字符串中的句号
 
-#导出省
-province = get_province(ret)
-if province in zhixiashi:         #4个直辖市
-    province = province
-    ret = ret.replace(province, province + "市", 1)
-elif province in ('北京市', '上海市', '天津市', '重庆市'):
-    province_t = province[0:2]
-elif province == "广西":           #考虑5个自治区的情况
-    ret = ret.replace(province, '', 1)
-    province_t = province + "壮族自治区"
-elif province == "新疆":
-    ret = ret.replace(province, '', 1)
-    province_t = province + "维吾尔自治区"
-elif province == "宁夏":
-    ret = ret.replace(province, '', 1)
-    province_t = province + "回族自治区"
-elif province == "内蒙古":
-    ret = ret.replace(province , '', 1)
-    province_t = province + "自治区"
-elif province == "西藏":
-    ret = ret.replace(province, '', 1)
-    province_t = province + "自治区"
-elif province[-1] != "省" and province[-1] != "区":           #province = 黑龙江 福建
-    ret = ret.replace(province, "", 1)
-    province_t = province + "省"
-else:
-    ret = ret.replace(province, "", 1)
-
-#导出市
-city = get_city(ret)
-if city != "":
-    ret = ret.replace(city, '',1)
-    if(city[-1]!="市") and (city[-3:-1]!="自治"):
-        city_t = city + "市"
-#address.append(city_t)
-
-#导出区/县/县级市
-country = get_country(ret)
-if country != "":
-    L = len(country)
-    if country[-1] == ret[L-1]:
-        ret = ret.replace(country, "", 1)
-    else:
-        ret = ret.replace(country[:-1], "", 1)
-
-# 导出街道/镇/乡
-town = get_town(ret)
-ret = ret.replace(town,'', 1)
+    ANS={'姓名':name[0],'手机':telephone_num [0],'地址':list_address }
+    print(json.dumps(ANS,ensure_ascii=False))
 
 
-#导出道路/街道
-road = get_road(ret)
-ret = ret.replace(road, '', 1)
-addr = ret
-#导出门牌号
-doornum = get_doornum(ret)
-ret = ret.replace(doornum, '', 1)
 
 
-if flag == '1':
-    addrlist.append(province)
-    addrlist.append(city)
-    addrlist.append(country)
-    addrlist.append(town)
-    addrlist.append(addr)
-elif flag == '2':
-    addrlist.append(province)
-    addrlist.append(city)
-    addrlist.append(country)
-    addrlist.append(town)
-    addrlist.append(road)
-    addrlist.append(doornum)
-    addrlist.append(ret)
-dict["地址"] = addrlist
-print(json.dumps(dict))
 
