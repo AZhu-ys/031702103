@@ -4,7 +4,6 @@ import re
 import json
 import cpca
 
-
 while (1):
     try:
         address = input()
@@ -64,10 +63,6 @@ while (1):
     xiang = XIANG.findall(ADDRESS)
     QU = re.compile(r'(.*?)开发区')
     qu = QU.findall(ADDRESS)
-    coopqu = re.compile(r'(.*?)合作区')
-    coop_qu = coopqu.findall(ADDRESS)
-
-
 
     if (len(town) != 0):
         ADDRESS = ADDRESS.split('镇')
@@ -84,16 +79,6 @@ while (1):
         ADDRESS[0] += '乡'
         list_address += ADDRESS
         ADDRESS = ADDRESS[1]
-    elif (len(qu) != 0):
-        ADDRESS = ADDRESS.split('开发区')
-        address[0] += '开发区'
-        list_address += ADDRESS
-        ADDRESS = ADDRESS[1]
-    elif (len(coop_qu) != 0):
-        ADDRESS = ADDRESS.split('合作区')
-        ADDRESS[0] += '合作区'
-        list_address += ADDRESS
-        ADDRESS = ADDRESS[1]
     else:
         ADDRESS = ADDRESS.split()
         list_address += ADDRESS
@@ -103,7 +88,7 @@ while (1):
 #提取第六级
     if (flag == 2):
         list_address.pop()                      #删掉最后一个元素
-        road = re.search(r'(.*胡同)|(.*?弄)|(.*?大街)|(.*?巷)|(.*?[路街港道])|(.*?庭)', ADDRESS)
+        road = re.search(r'(.*?路)|(.*?[路街港道])|(.*胡同)|(.*?庭)|(.*?区)|(.*?里)|(.?坊)',ADDRESS)
         if (road == None):
             list_address.insert(4, '')  # 缺失的道路位置保留空字符串
         else:
@@ -113,8 +98,8 @@ while (1):
             road = road[0]
             ADDRESS = ADDRESS.replace(road, '', 1)
 
-#门牌号
-        door_number = re.search(r'(.*?号)|(.*?弄)|(.*?[乡道])', ADDRESS)
+    #门牌号
+        door_number = re.search(r'(.*?号)|(.*?弄)|(.*?[乡])|(.*?[道])', ADDRESS)
         if (door_number == None):
             list_address.insert(5, '')              #缺失的门牌号位置保留空字符串
         else:
@@ -128,8 +113,6 @@ while (1):
             list_address += ADDRESS
         else:
             list_address .insert(6, '')            #第七级详细信息缺失置空字符串
-
-
 
     result = {'姓名':name[0],'手机':telephone_num [0],'地址':list_address}
     dict = json.dumps(result, ensure_ascii=False)        #将dict转换为json
