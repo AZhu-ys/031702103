@@ -5,7 +5,6 @@ import json
 import cpca
 
 
-
 while (1):
     try:
         address = input()
@@ -33,10 +32,10 @@ while (1):
     telephone_num = telephone.findall(address)
 
 #获取地址
-    list_address = address.split(',')      #以逗号为分隔符分开名字和后面信息，并返回分割后列表
+    list_address = address.split(',')      #以逗号为分隔符,将名字和剩余的信息分开
     if(len(list_address) == 2):
-        address=list_address[1]
-    list_address = list_address.split(str(telephone_num[0]))      #以电话号码为分隔符
+        address = list_address[1]
+    list_address = address.split(str(telephone_num[0]))      #以电话号码为分隔符，分割该字符串中的地址信息
     address = list_address[0]+list_address[1]
 
 #用cpca模块提取省、市、区
