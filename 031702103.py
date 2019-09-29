@@ -103,7 +103,7 @@ while (1):
 #提取第六级
     if (flag == 2):
         list_address.pop()                      #删掉最后一个元素
-        road = re.search(r'(.*?路)|(.*?街道)|(.*胡同)|(.*?弄)|(.*?大街)|(.*?巷)|(.*?坊)', ADDRESS)
+        road = re.search(r'(.*胡同)|(.*?弄)|(.*?大街)|(.*?巷)|(.*?[路街港道])|(.*?庭)', ADDRESS）
         if (road == None):
             list_address.insert(4, '')             #缺失的道路位置保留空字符串
         else:
